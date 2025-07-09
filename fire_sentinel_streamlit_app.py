@@ -20,17 +20,28 @@ elevation = st.slider("Elevation", 0.0, 3000.0, 500.0)
 population = st.slider("Population Density", 0.0, 10000.0, 100.0)
 erc = st.slider("ERC", 0.0, 100.0, 20.0)
 prev_fire = st.selectbox("Previous Fire (Yes=1, No=0)", options=[0.0, 1.0])
+
+input_data = pd.DataFrame([{
+    'NDVI': ndvi,
+    'tmmn': tmmn,
+    'tmmx': tmmx,
+    'sph': sph,
+    'vs': vs,
+    'pdsi': pdsi,
+    'pr': pr,
+    'th': th,
+    'elevation': elevation,
+    'population': population,
+    'erc': erc,
+    'PrevFireMask': prev_fire
+}])
+
 if st.button("Predict Fire Risk"):
-    input_data = pd.DataFrame([[
-        ndvi, tmmn, tmmx, sph, vs, pdsi, pr, th,
-        elevation, population, erc, prev_fire
-    ]], columns=[
-        'NDVI', 'tmmn', 'tmmx', 'sph', 'vs', 'pdsi', 'pr', 'th',
-        'elevation', 'population', 'erc', 'PrevFireMask'
-    ])
-    
-    prediction = model.predict(input_data)[0]
-    if prediction == 1:
-        st.error("🔥 High Fire Risk Detected!")
-    else:
-        st.success("✅ No Fire Risk Detected.")
+    try:
+        prediction = model.predict(input_data)[0]
+        if prediction == 1:
+            st.error("🔥 High Fire Risk Detected!")
+        else:
+            st.success("✅ No Fire Risk Detected.")
+    except Exception as e:
+        st.warning(f"⚠️ Prediction failed: {e}")
